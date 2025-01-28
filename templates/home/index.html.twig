@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+<h1>Catégories :</h1>
+<select name="video_category" onchange="this.form.submit();">
+    {% for option in categoryOptions %}
+    <option value="{{ option.id }}">
+        {{ option.name }}
+    </option>
+    {% endfor %}
+</select>
+
+<h1>Utilisateurs du département :</h1>
+{% if app.user is null %}
+    <p>
+        Vous devez être connecté pour voir cette information.
+        <br>
+        <a href="{{ path('app_login') }}">Se connecter</a>.
+    </p>
+{% else %}
+    <p>Bienvenue, {{ app.user.email }} !</p>
+    {% if app.user.departments|length == 1 %}
+        <p>Vous êtes du département {{ app.user.departments[0].name }}</p>
+    {% elseif app.user.departments|length > 1 %}
+        <p>Vous êtes du ou des département(s) :</p>
+        <ul>
+            {% for d in app.user.departments %}
+                <li>{{ d.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}    
+
+    {% if not is_granted('ROLE_ADMIN') %}
+        <p>Vous n'êtes pas admin, vous ne pouvez pas voir les utilisateurs du département</p>
+    {% else %}
+        <p>Les Utilisateurs de mon ou mes département(s) :</p>
+        <ul>
+            {% for user in users %}
+                <li>
+                    <strong>{{ user.email }}</strong>
+                    {% if user.departments|length > 0 %}
+                        <ul>
+                            {% for department in user.departments %}
+                                <li>{{ department.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Aucun département</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>     
+    {% endif %}
+
+{% endif %}
+{% endblock %}
